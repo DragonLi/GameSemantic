@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ICA_AST", "ICA_AST\ICA_AST.fsproj", "{EA1D289C-CE69-4CAF-B0E9-4399C38F8CEC}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GameSemanticMain", "GameSemanticMain\GameSemanticMain.fsproj", "{910A9116-C1E6-4B1B-911F-6464E4D76BB9}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Parser", "Parser\Parser.fsproj", "{93A74054-0392-4C2B-BF0E-B72CC9ABE6F1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA1D289C-CE69-4CAF-B0E9-4399C38F8CEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA1D289C-CE69-4CAF-B0E9-4399C38F8CEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA1D289C-CE69-4CAF-B0E9-4399C38F8CEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA1D289C-CE69-4CAF-B0E9-4399C38F8CEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{910A9116-C1E6-4B1B-911F-6464E4D76BB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{910A9116-C1E6-4B1B-911F-6464E4D76BB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{910A9116-C1E6-4B1B-911F-6464E4D76BB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{910A9116-C1E6-4B1B-911F-6464E4D76BB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93A74054-0392-4C2B-BF0E-B72CC9ABE6F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93A74054-0392-4C2B-BF0E-B72CC9ABE6F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93A74054-0392-4C2B-BF0E-B72CC9ABE6F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93A74054-0392-4C2B-BF0E-B72CC9ABE6F1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

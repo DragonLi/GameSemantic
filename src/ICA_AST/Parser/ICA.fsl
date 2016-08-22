@@ -1,0 +1,42 @@
+{
+module GS.ICA.Lexer
+open Microsoft.FSharp.Text.Lexing
+open GS.ICA.Parser
+
+let lexeme lexbuf = LexBuffer<_>.LexemeString(lexbuf)
+}
+
+let digit = ['0'-'9']
+let whitespace = [' ' '\t' '\r' '\n']
+let chars = ['a'-'z']
+
+
+rule token = parse
+| whitespace { token lexbuf }
+| digit+ { NUM(lexeme lexbuf)}
+| "if" { IF (lexeme lexbuf)}
+| "then" { THEN (lexeme lexbuf)}
+| "else" { ELSE (lexeme lexbuf)}
+| "grab" { GRAB (lexeme lexbuf)}
+| "release" { RELEASE (lexeme lexbuf)}
+| "new" { NEW(lexeme lexbuf)}
+| ":=" { ASSG(lexeme lexbuf)}
+| "in" { IN(lexeme lexbuf)}
+| "sema" { SEMAPHORE(lexeme lexbuf)}
+| "||" { DOUBLEBAR (lexeme lexbuf)}
+| "skip" { SKIP(lexeme lexbuf)}
+| "true"  { TRUE(lexeme lexbuf)}
+| "false" { FALSE(lexeme lexbuf)}
+| '\\' { LAMBDA(lexeme lexbuf)}
+| '!' { BANG(lexeme lexbuf)}
+| '-' { BINOP(lexeme lexbuf) }
+| '(' { LBR(lexeme lexbuf) }
+| ')' { RBR(lexeme lexbuf)  }
+| '/' { BINOP(lexeme lexbuf) }
+| '+' { BINOP(lexeme lexbuf) }
+| '*' { BINOP(lexeme lexbuf) }
+| ';' { SEMI(lexeme lexbuf) }
+| '=' { BINOP(lexeme lexbuf) }
+| chars+ { IDENT(lexeme lexbuf) }
+| eof { RNGLR_EOF ("")}
+| _ {  failwithf "unexpected input: %s" <| string lexeme }

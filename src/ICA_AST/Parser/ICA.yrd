@@ -1,0 +1,22 @@
+{
+open GS.ICA.AST
+}
+
+[<Start>]
+program :
+     TRUE {True} | FALSE {False} | n=NUM {Num (int n)}
+   | SKIP {Skip}
+   | i=IDENT {Var i}
+   | LAMBDA i1=IDENT DOT p=program { Lambda (Var i1, p) }
+   | p1=program LBR p2=program RBR { App (p1, p2) }
+   | p1=program op=BINOP p2=program { Expr (p1, p2, op) }
+   | IF cond=program THEN p1=program ELSE p2=program { If (cond, p1, p2)}
+   | NEW i=IDENT IN p=program { New (Var i, p) }
+   | p1=program SEMI p2=program { Seq (p1, p2) }
+   | BANG p=program { Deref p }
+   | i=IDENT ASSG p=program { Assg (Var i, p) }
+   | p1=program DOUBLEBAR p2=program { Par (p1, p2) }
+   | SEMAPHORE i=IDENT IN p=program  { Sem (Var i, p) }
+   | GRAB i=IDENT {Grab (Var i) }
+   | RELEASE i=IDENT {Release (Var i)}
+

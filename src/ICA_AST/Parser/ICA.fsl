@@ -27,6 +27,7 @@ rule token = parse
 | "skip" { SKIP(lexeme lexbuf)}
 | "true"  { TRUE(lexeme lexbuf)}
 | "false" { FALSE(lexeme lexbuf)}
+| "fix" { FIX(lexeme lexbuf)}
 | '\\' { LAMBDA(lexeme lexbuf)}
 | '!' { BANG(lexeme lexbuf)}
 | '-' { BINOP(lexeme lexbuf) }

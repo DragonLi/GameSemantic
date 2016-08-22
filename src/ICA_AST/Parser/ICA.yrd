@@ -23,6 +23,7 @@ stmt :
    | SEMAPHORE i=IDENT IN p=program  { Sem (Var i, p) }
    | GRAB i=IDENT {Grab (Var i) }
    | RELEASE i=IDENT {Release (Var i)}
+   | FIX p=program {Fix p}
    | LBR p=program RBR {p}
 
 

@@ -18,3 +18,4 @@ type ast =
  | Sem of ast*ast
  | Grab of ast
  | Release of ast
+ | Fix of ast

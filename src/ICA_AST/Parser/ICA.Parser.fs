@@ -20,6 +20,7 @@ type Token =
     | DOUBLEBAR of (string)
     | ELSE of (string)
     | FALSE of (string)
+    | FIX of (string)
     | GRAB of (string)
     | IDENT of (string)
     | IF of (string)
@@ -48,6 +49,7 @@ let tokenData = function
     | DOUBLEBAR x -> box x
     | ELSE x -> box x
     | FALSE x -> box x
+    | FIX x -> box x
     | GRAB x -> box x
     | IDENT x -> box x
     | IF x -> box x
@@ -78,22 +80,23 @@ let numToString = function
     | 9 -> "DOUBLEBAR"
     | 10 -> "ELSE"
     | 11 -> "FALSE"
-    | 12 -> "GRAB"
-    | 13 -> "IDENT"
-    | 14 -> "IF"
-    | 15 -> "IN"
-    | 16 -> "LAMBDA"
-    | 17 -> "LBR"
-    | 18 -> "NEW"
-    | 19 -> "NUM"
-    | 20 -> "RBR"
-    | 21 -> "RELEASE"
-    | 22 -> "RNGLR_EOF"
-    | 23 -> "SEMAPHORE"
-    | 24 -> "SEMI"
-    | 25 -> "SKIP"
-    | 26 -> "THEN"
-    | 27 -> "TRUE"
+    | 12 -> "FIX"
+    | 13 -> "GRAB"
+    | 14 -> "IDENT"
+    | 15 -> "IF"
+    | 16 -> "IN"
+    | 17 -> "LAMBDA"
+    | 18 -> "LBR"
+    | 19 -> "NEW"
+    | 20 -> "NUM"
+    | 21 -> "RBR"
+    | 22 -> "RELEASE"
+    | 23 -> "RNGLR_EOF"
+    | 24 -> "SEMAPHORE"
+    | 25 -> "SEMI"
+    | 26 -> "SKIP"
+    | 27 -> "THEN"
+    | 28 -> "TRUE"
     | _ -> ""
 
 let tokenToNumber = function
@@ -104,22 +107,23 @@ let tokenToNumber = function
     | DOUBLEBAR _ -> 9
     | ELSE _ -> 10
     | FALSE _ -> 11
-    | GRAB _ -> 12
-    | IDENT _ -> 13
-    | IF _ -> 14
-    | IN _ -> 15
-    | LAMBDA _ -> 16
-    | LBR _ -> 17
-    | NEW _ -> 18
-    | NUM _ -> 19
-    | RBR _ -> 20
-    | RELEASE _ -> 21
-    | RNGLR_EOF _ -> 22
-    | SEMAPHORE _ -> 23
-    | SEMI _ -> 24
-    | SKIP _ -> 25
-    | THEN _ -> 26
-    | TRUE _ -> 27
+    | FIX _ -> 12
+    | GRAB _ -> 13
+    | IDENT _ -> 14
+    | IF _ -> 15
+    | IN _ -> 16
+    | LAMBDA _ -> 17
+    | LBR _ -> 18
+    | NEW _ -> 19
+    | NUM _ -> 20
+    | RBR _ -> 21
+    | RELEASE _ -> 22
+    | RNGLR_EOF _ -> 23
+    | SEMAPHORE _ -> 24
+    | SEMI _ -> 25
+    | SKIP _ -> 26
+    | THEN _ -> 27
+    | TRUE _ -> 28
 
 let isLiteral = function
     | ASSG _ -> false
@@ -129,6 +133,7 @@ let isLiteral = function
     | DOUBLEBAR _ -> false
     | ELSE _ -> false
     | FALSE _ -> false
+    | FIX _ -> false
     | GRAB _ -> false
     | IDENT _ -> false
     | IF _ -> false
@@ -148,9 +153,9 @@ let isLiteral = function
 
 let getLiteralNames = []
 let mutable private cur = 0
-let leftSide = [|2; 2; 4; 0; 0; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3|]
-let private rules = [|0; 9; 2; 0; 2; 3; 24; 0; 3; 27; 11; 19; 25; 13; 16; 13; 8; 2; 2; 17; 2; 20; 3; 7; 2; 14; 2; 26; 2; 10; 2; 18; 13; 15; 2; 6; 2; 13; 5; 2; 23; 13; 15; 2; 12; 13; 21; 13; 17; 2; 20|]
-let private rulesStart = [|0; 3; 4; 5; 8; 9; 10; 11; 12; 13; 14; 18; 22; 25; 31; 35; 37; 40; 44; 46; 48; 51|]
+let leftSide = [|2; 2; 4; 0; 0; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3; 3|]
+let private rules = [|0; 9; 2; 0; 2; 3; 25; 0; 3; 28; 11; 20; 26; 14; 17; 14; 8; 2; 2; 18; 2; 21; 3; 7; 2; 15; 2; 27; 2; 10; 2; 19; 14; 16; 2; 6; 2; 14; 5; 2; 24; 14; 16; 2; 13; 14; 22; 14; 12; 2; 18; 2; 21|]
+let private rulesStart = [|0; 3; 4; 5; 8; 9; 10; 11; 12; 13; 14; 18; 22; 25; 31; 35; 37; 40; 44; 46; 48; 50; 53|]
 let startRule = 2
 
 let acceptEmptyInput = false
@@ -158,12 +163,12 @@ let acceptEmptyInput = false
 let defaultAstToDot =
     (fun (tree : Yard.Generators.Common.AST.Tree<Token>) -> tree.AstToDot numToString tokenToNumber None leftSide)
 
-let private lists_gotos = [|1; 47; 7; 13; 15; 16; 18; 21; 27; 31; 34; 38; 39; 41; 45; 46; 2; 3; 4; 5; 6; 8; 10; 9; 11; 12; 14; 17; 19; 20; 22; 23; 24; 25; 26; 28; 29; 30; 32; 33; 35; 36; 37; 40; 42; 43; 44|]
+let private lists_gotos = [|1; 49; 7; 13; 15; 16; 18; 20; 23; 29; 33; 36; 40; 41; 43; 47; 48; 2; 3; 4; 5; 6; 8; 10; 9; 11; 12; 14; 17; 19; 21; 22; 24; 25; 26; 27; 28; 30; 31; 32; 34; 35; 37; 38; 39; 42; 44; 45; 46|]
 let private small_gotos =
-        [|16; 0; 131073; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 65537; 589840; 131088; 0; 131089; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 196609; 1114130; 262160; 0; 131091; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 327682; 1114130; 1310740; 458754; 458773; 1572886; 524304; 0; 131095; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 589825; 1114130; 655376; 24; 131097; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 720897; 589840; 786433; 1114130; 851984; 0; 131098; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 917505; 1114130; 1048577; 851995; 1179649; 327708; 1245200; 0; 131101; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 1310721; 1114130; 1376272; 0; 131102; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 1441794; 1114130; 1703967; 1507344; 0; 131104; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 1572866; 655393; 1114130; 1638416; 0; 131106; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 1703937; 1114130; 1769473; 852003; 1835009; 524324; 1900560; 0; 131109; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 1966081; 1114130; 2031632; 0; 131110; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 2097154; 1114130; 1310759; 2228225; 852008; 2293761; 983081; 2359312; 0; 131114; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 2424833; 1114130; 2555905; 852011; 2686977; 852012; 2752513; 983085; 2818064; 0; 131118; 196610; 393219; 720900; 786437; 851974; 917511; 1048584; 1114121; 1179658; 1245195; 1376268; 1507341; 1638414; 1769487; 2883585; 1114130; 3080193; 1114130|]
-let gotos = Array.zeroCreate 48
-for i = 0 to 47 do
-        gotos.[i] <- Array.zeroCreate 28
+        [|17; 0; 131073; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 65537; 589841; 131089; 0; 131090; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 196609; 1179667; 262161; 0; 131092; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 327682; 1179667; 1376277; 458754; 458774; 1638423; 524305; 0; 131096; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 589825; 1179667; 655377; 25; 131098; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 720897; 589841; 786433; 1179667; 851985; 0; 131099; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 917505; 1179667; 1048593; 0; 131100; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 1114113; 1179667; 1179649; 917533; 1310721; 327710; 1376273; 0; 131103; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 1441793; 1179667; 1507345; 0; 131104; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 1572866; 1179667; 1769505; 1638417; 0; 131106; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 1703938; 655395; 1179667; 1769489; 0; 131108; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 1835009; 1179667; 1900545; 917541; 1966081; 524326; 2031633; 0; 131111; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 2097153; 1179667; 2162705; 0; 131112; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 2228226; 1179667; 1376297; 2359297; 917546; 2424833; 1048619; 2490385; 0; 131116; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 2555905; 1179667; 2686977; 917549; 2818049; 917550; 2883585; 1048623; 2949137; 0; 131120; 196610; 393219; 720900; 786437; 851974; 917511; 983048; 1114121; 1179658; 1245195; 1310732; 1441805; 1572878; 1703951; 1835024; 3014657; 1179667; 3211265; 1179667|]
+let gotos = Array.zeroCreate 50
+for i = 0 to 49 do
+        gotos.[i] <- Array.zeroCreate 29
 cur <- 0
 while cur < small_gotos.Length do
     let i = small_gotos.[cur] >>> 16
@@ -174,12 +179,12 @@ while cur < small_gotos.Length do
         let x = small_gotos.[cur + k] &&& 65535
         gotos.[i].[j] <- lists_gotos.[x]
     cur <- cur + length
-let private lists_reduces = [|[|1,1|]; [|0,3|]; [|11,4|]; [|4,1|]; [|12,3|]; [|3,3|]; [|3,3; 1,1|]; [|15,2|]; [|6,1|]; [|18,2|]; [|9,1|]; [|16,3|]; [|13,6|]; [|10,4|]; [|20,3|]; [|14,4|]; [|7,1|]; [|19,2|]; [|17,4|]; [|8,1|]; [|5,1|]|]
+let private lists_reduces = [|[|1,1|]; [|0,3|]; [|11,4|]; [|4,1|]; [|12,3|]; [|3,3|]; [|3,3; 1,1|]; [|15,2|]; [|6,1|]; [|20,2|]; [|18,2|]; [|9,1|]; [|16,3|]; [|13,6|]; [|10,4|]; [|21,3|]; [|14,4|]; [|7,1|]; [|19,2|]; [|17,4|]; [|8,1|]; [|5,1|]|]
 let private small_reduces =
-        [|65544; 458752; 589824; 655360; 1114112; 1310720; 1441792; 1572864; 1703936; 196616; 458753; 589825; 655361; 1114113; 1310721; 1441793; 1572865; 1703937; 393224; 458754; 589826; 655362; 1114114; 1310722; 1441794; 1572866; 1703938; 458760; 458755; 589827; 655363; 1114115; 1310723; 1441795; 1572867; 1703939; 589832; 458756; 589828; 655364; 1114116; 1310724; 1441796; 1572868; 1703940; 720904; 458757; 589829; 655365; 1114118; 1310725; 1441797; 1572869; 1703941; 917512; 458759; 589831; 655367; 1114119; 1310727; 1441799; 1572871; 1703943; 983048; 458760; 589832; 655368; 1114120; 1310728; 1441800; 1572872; 1703944; 1114120; 458761; 589833; 655369; 1114121; 1310729; 1441801; 1572873; 1703945; 1179656; 458762; 589834; 655370; 1114122; 1310730; 1441802; 1572874; 1703946; 1310728; 458763; 589835; 655371; 1114123; 1310731; 1441803; 1572875; 1703947; 1703944; 458764; 589836; 655372; 1114124; 1310732; 1441804; 1572876; 1703948; 1966088; 458765; 589837; 655373; 1114125; 1310733; 1441805; 1572877; 1703949; 2162696; 458766; 589838; 655374; 1114126; 1310734; 1441806; 1572878; 1703950; 2424840; 458767; 589839; 655375; 1114127; 1310735; 1441807; 1572879; 1703951; 2490376; 458768; 589840; 655376; 1114128; 1310736; 1441808; 1572880; 1703952; 2621448; 458769; 589841; 655377; 1114129; 1310737; 1441809; 1572881; 1703953; 2883592; 458770; 589842; 655378; 1114130; 1310738; 1441810; 1572882; 1703954; 2949128; 458771; 589843; 655379; 1114131; 1310739; 1441811; 1572883; 1703955; 3014664; 458772; 589844; 655380; 1114132; 1310740; 1441812; 1572884; 1703956|]
-let reduces = Array.zeroCreate 48
-for i = 0 to 47 do
-        reduces.[i] <- Array.zeroCreate 28
+        [|65544; 458752; 589824; 655360; 1179648; 1376256; 1507328; 1638400; 1769472; 196616; 458753; 589825; 655361; 1179649; 1376257; 1507329; 1638401; 1769473; 393224; 458754; 589826; 655362; 1179650; 1376258; 1507330; 1638402; 1769474; 458760; 458755; 589827; 655363; 1179651; 1376259; 1507331; 1638403; 1769475; 589832; 458756; 589828; 655364; 1179652; 1376260; 1507332; 1638404; 1769476; 720904; 458757; 589829; 655365; 1179654; 1376261; 1507333; 1638405; 1769477; 917512; 458759; 589831; 655367; 1179655; 1376263; 1507335; 1638407; 1769479; 983048; 458760; 589832; 655368; 1179656; 1376264; 1507336; 1638408; 1769480; 1114120; 458761; 589833; 655369; 1179657; 1376265; 1507337; 1638409; 1769481; 1245192; 458762; 589834; 655370; 1179658; 1376266; 1507338; 1638410; 1769482; 1310728; 458763; 589835; 655371; 1179659; 1376267; 1507339; 1638411; 1769483; 1441800; 458764; 589836; 655372; 1179660; 1376268; 1507340; 1638412; 1769484; 1835016; 458765; 589837; 655373; 1179661; 1376269; 1507341; 1638413; 1769485; 2097160; 458766; 589838; 655374; 1179662; 1376270; 1507342; 1638414; 1769486; 2293768; 458767; 589839; 655375; 1179663; 1376271; 1507343; 1638415; 1769487; 2555912; 458768; 589840; 655376; 1179664; 1376272; 1507344; 1638416; 1769488; 2621448; 458769; 589841; 655377; 1179665; 1376273; 1507345; 1638417; 1769489; 2752520; 458770; 589842; 655378; 1179666; 1376274; 1507346; 1638418; 1769490; 3014664; 458771; 589843; 655379; 1179667; 1376275; 1507347; 1638419; 1769491; 3080200; 458772; 589844; 655380; 1179668; 1376276; 1507348; 1638420; 1769492; 3145736; 458773; 589845; 655381; 1179669; 1376277; 1507349; 1638421; 1769493|]
+let reduces = Array.zeroCreate 50
+for i = 0 to 49 do
+        reduces.[i] <- Array.zeroCreate 29
 cur <- 0
 while cur < small_reduces.Length do
     let i = small_reduces.[cur] >>> 16
@@ -193,9 +198,9 @@ while cur < small_reduces.Length do
 let private lists_zeroReduces = [||]
 let private small_zeroReduces =
         [||]
-let zeroReduces = Array.zeroCreate 48
-for i = 0 to 47 do
-        zeroReduces.[i] <- Array.zeroCreate 28
+let zeroReduces = Array.zeroCreate 50
+for i = 0 to 49 do
+        zeroReduces.[i] <- Array.zeroCreate 29
 cur <- 0
 while cur < small_zeroReduces.Length do
     let i = small_zeroReduces.[cur] >>> 16
@@ -206,19 +211,19 @@ while cur < small_zeroReduces.Length do
         let x = small_zeroReduces.[cur + k] &&& 65535
         zeroReduces.[i].[j] <- lists_zeroReduces.[x]
     cur <- cur + length
-let private small_acc = [47]
-let private accStates = Array.zeroCreate 48
-for i = 0 to 47 do
+let private small_acc = [49]
+let private accStates = Array.zeroCreate 50
+for i = 0 to 49 do
         accStates.[i] <- List.exists ((=) i) small_acc
-let eofIndex = 22
+let eofIndex = 23
 let errorIndex = 1
 let errorRulesExists = false
 let private parserSource = new ParserSource<Token> (gotos, reduces, zeroReduces, accStates, rules, rulesStart, leftSide, startRule, eofIndex, tokenToNumber, acceptEmptyInput, numToString, errorIndex, errorRulesExists)
 let buildAst : (seq<Token> -> ParseResult<Token>) =
     buildAst<Token> parserSource
 
-let _rnglr_epsilons : Tree<Token>[] = [|null; new Tree<_>(null,(new AST(new Family(21, new Nodes([||])), null)), null); null; null; null|]
-let _rnglr_filtered_epsilons : Tree<Token>[] = [|null; new Tree<_>(null,(new AST(new Family(21, new Nodes([||])), null)), null); null; null; null|]
+let _rnglr_epsilons : Tree<Token>[] = [|null; new Tree<_>(null,(new AST(new Family(22, new Nodes([||])), null)), null); null; null; null|]
+let _rnglr_filtered_epsilons : Tree<Token>[] = [|null; new Tree<_>(null,(new AST(new Family(22, new Nodes([||])), null)), null); null; null; null|]
 for x in _rnglr_filtered_epsilons do if x <> null then x.ChooseSingleAst()
 let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats = 
   (Array.zeroCreate 0 : array<'_rnglr_type_block * '_rnglr_type_error * '_rnglr_type_program * '_rnglr_type_stmt * '_rnglr_type_yard_start_rule>), 
@@ -244,7 +249,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 6 "ICA.yrd"
                : '_rnglr_type_program) 
-# 247 "ICA.Parser.fs"
+# 252 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -263,7 +268,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 6 "ICA.yrd"
                : '_rnglr_type_program) 
-# 266 "ICA.Parser.fs"
+# 271 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -273,7 +278,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 6 "ICA.yrd"
                : '_rnglr_type_yard_start_rule) 
-# 276 "ICA.Parser.fs"
+# 281 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -296,7 +301,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 9 "ICA.yrd"
                : '_rnglr_type_block) 
-# 299 "ICA.Parser.fs"
+# 304 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -315,7 +320,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 9 "ICA.yrd"
                : '_rnglr_type_block) 
-# 318 "ICA.Parser.fs"
+# 323 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -335,7 +340,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 338 "ICA.Parser.fs"
+# 343 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -355,7 +360,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 358 "ICA.Parser.fs"
+# 363 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -375,7 +380,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 378 "ICA.Parser.fs"
+# 383 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -395,7 +400,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 398 "ICA.Parser.fs"
+# 403 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -415,7 +420,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 418 "ICA.Parser.fs"
+# 423 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -441,7 +446,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 444 "ICA.Parser.fs"
+# 449 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -466,7 +471,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 469 "ICA.Parser.fs"
+# 474 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -489,7 +494,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 492 "ICA.Parser.fs"
+# 497 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -519,7 +524,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 522 "ICA.Parser.fs"
+# 527 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -545,7 +550,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 548 "ICA.Parser.fs"
+# 553 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -567,7 +572,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 570 "ICA.Parser.fs"
+# 575 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -591,7 +596,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 594 "ICA.Parser.fs"
+# 599 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -617,7 +622,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 620 "ICA.Parser.fs"
+# 625 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -639,7 +644,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 642 "ICA.Parser.fs"
+# 647 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -661,7 +666,29 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 664 "ICA.Parser.fs"
+# 669 "ICA.Parser.fs"
+      );
+  (
+    fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
+      box (
+        ( 
+          (
+            let _rnglr_cycle_res = ref []
+            (match ((unbox _rnglr_children.[0]) : Token) with FIX _rnglr_val -> [_rnglr_val] | a -> failwithf "FIX expected, but %A found" a )
+             |> List.iter (fun (_rnglr_var_0) -> 
+              ((unbox _rnglr_children.[1]) : '_rnglr_type_program) 
+               |> List.iter (fun (p) -> 
+                _rnglr_cycle_res := (
+                  
+# 26 "ICA.yrd"
+                                      Fix p
+                    )::!_rnglr_cycle_res ) )
+            !_rnglr_cycle_res
+          )
+            )
+# 12 "ICA.yrd"
+               : '_rnglr_type_stmt) 
+# 691 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -677,7 +704,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
                  |> List.iter (fun (_rnglr_var_1) -> 
                   _rnglr_cycle_res := (
                     
-# 26 "ICA.yrd"
+# 27 "ICA.yrd"
                                             p
                       )::!_rnglr_cycle_res ) ) )
             !_rnglr_cycle_res
@@ -685,7 +712,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 # 12 "ICA.yrd"
                : '_rnglr_type_stmt) 
-# 688 "ICA.Parser.fs"
+# 715 "ICA.Parser.fs"
       );
   (
     fun (_rnglr_children : array<_>) (parserRange : (int * int)) -> 
@@ -703,7 +730,7 @@ let _rnglr_extra_array, _rnglr_rule_, _rnglr_concats =
             )
 
                : '_rnglr_type_error) 
-# 706 "ICA.Parser.fs"
+# 733 "ICA.Parser.fs"
       );
   |] , [|
     (fun (_rnglr_list : list<_>) -> 

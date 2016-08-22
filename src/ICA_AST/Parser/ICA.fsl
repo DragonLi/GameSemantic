@@ -37,6 +37,7 @@ rule token = parse
 | '*' { BINOP(lexeme lexbuf) }
 | ';' { SEMI(lexeme lexbuf) }
 | '=' { BINOP(lexeme lexbuf) }
+| '.' { DOT(lexeme lexbuf) }
 | chars+ { IDENT(lexeme lexbuf) }
 | eof { RNGLR_EOF ("")}
 | _ {  failwithf "unexpected input: %s" <| string lexeme }

@@ -3,6 +3,6 @@
 
 [<EntryPoint>]
 let main argv = 
-    let ast = GS.ICA.Pars.Main.parse "skip; skip + skip; skip"
+    let ast = GS.ICA.Pars.Main.parse "ss(skip; skip) + skip; !skip + \x.(m || n + 8)"
     printfn "%A" ast
     0 // return an integer exit code

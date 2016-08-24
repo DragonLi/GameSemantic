@@ -50,22 +50,17 @@ type tRes<'t> =
     | P of tRes<'t>*(tRes<'t> -> tRes<'t>)
 
 let eval t =
-    match t with T (t:MailboxProcessor<_>) -> t.PostAndReply(fun rc -> Q rc)
+    match t with 
+    | T (t:MailboxProcessor<_>) -> t.PostAndReply(fun rc -> Q rc)
+    | _ -> failwith "incorrect"
 
 let rec translate ast context =
     match ast with 
     | Num n -> T(mkTransducer (fun () -> n))
     | Expr(l, r, op) ->
-        let l' = 
-            match translate l context with
-            | T t -> t
-            | _ -> failwith "incorrect"
-        let r' = 
-            match translate r context with
-            | T t -> t
-            | _ -> failwith "incorrect"
-        T(mkTransducer (fun () -> l'.PostAndReply(fun rc -> Q rc) + r'.PostAndReply(fun rc -> Q rc)
-                        ))
+        let l' =  translate l context
+        let r' = translate r context 
+        T(mkTransducer (fun () -> eval l' + eval r'))
     | Lambda ((Var s), ast) ->
         L(fun s' -> translate ast ((s,s')::context))
     | Var s -> 
@@ -94,8 +89,7 @@ let rec translate ast context =
                   fun t ->
                     let f () = 
                         printfn "S1=%A" !store
-                        match t with
-                        | T t -> store := t.PostAndReply(fun rc -> Q rc)
+                        store := eval t
                         printfn "S2=%A" !store
                         !store
                     T (mkTransducer (f)))     

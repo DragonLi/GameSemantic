@@ -49,6 +49,9 @@ type tRes<'t> =
     | T of 't
     | P of tRes<'t>*(tRes<'t> -> tRes<'t>)
 
+let eval t =
+    match t with T (t:MailboxProcessor<_>) -> t.PostAndReply(fun rc -> Q rc)
+
 let rec translate ast context =
     match ast with 
     | Num n -> T(mkTransducer (fun () -> n))
@@ -61,8 +64,8 @@ let rec translate ast context =
             match translate r context with
             | T t -> t
             | _ -> failwith "incorrect"
-        T(mkTransducer (let r = l'.PostAndReply(fun rc -> Q rc) + r'.PostAndReply(fun rc -> Q rc)
-                        fun () -> r))
+        T(mkTransducer (fun () -> l'.PostAndReply(fun rc -> Q rc) + r'.PostAndReply(fun rc -> Q rc)
+                        ))
     | Lambda ((Var s), ast) ->
         L(fun s' -> translate ast ((s,s')::context))
     | Var s -> 
@@ -85,19 +88,33 @@ let rec translate ast context =
     | New ((Var s), e) -> 
         let v =             
                 let store = ref 0
-                P(T(mkTransducer (fun () -> !store)), 
-                  fun t -> 
-                    printfn "S1=%A" !store
-                    match t with
-                    | T t -> store := t.PostAndReply(fun rc -> Q rc)
-                    printfn "S2=%A" !store
-                    let s = !store
-                    T (mkTransducer (fun () -> s)))     
+                P(T(mkTransducer (fun () ->
+                                        printfn "deref V = %A" !store 
+                                        !store)), 
+                  fun t ->
+                    let f () = 
+                        printfn "S1=%A" !store
+                        match t with
+                        | T t -> store := t.PostAndReply(fun rc -> Q rc)
+                        printfn "S2=%A" !store
+                        !store
+                    T (mkTransducer (f)))     
         translate e ((s,v)::context)
     | Seq (e1, e2) ->
         let t1 = translate e1 context
         let t2 = translate e2 context
-        T (mkTransducer (fun () -> match t1 with T t -> t.PostAndReply(fun rc -> Q rc); match t2 with T t -> t.PostAndReply(fun rc -> Q rc); ))    
+        T (mkTransducer (fun () -> eval t1
+                                   eval t2))
+    | If (c,t,e) ->
+        let c' = translate c context
+        let t' = translate t context
+        let e' = translate e context
+        T (mkTransducer (fun () ->
+                            let c = eval c'
+                            if c = 0
+                            then eval t'
+                            else eval e'
+                         ))
         
 (*        new_var (\x.M)
         ((var->N)->N)

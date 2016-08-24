@@ -11,7 +11,8 @@ let main argv =
     //let ast = GS.ICA.Pars.Main.parse "(\ f . new x in (f(x) + (f(x))))(\ x . !x + 1)"
     //let ast = GS.ICA.Pars.Main.parse "(\ g . (\ f . new x in (f(x) + (g(x))))(\ a . a := (!a + 1)))(\ b . b := (!b + 2))"
     //let ast = GS.ICA.Pars.Main.parse "(\ g . (\ f . new x in ((g(x))+(!(f(x))) + 1))(\ a . a ))(\ b . b := (!b + 2))"
-    let ast = GS.ICA.Pars.Main.parse "new x in (((x := 2);(x := (!x + 1)));(!x))"
+    //let ast = GS.ICA.Pars.Main.parse "new x in ((x := 2);(x := (!x + 1));(!x))"
+    let ast = GS.ICA.Pars.Main.parse "new x in ((x := 2); if !x then x := (!x + 1) else x := (!x + 3))"
     printfn "%A" ast
     let t = GS.ICA.AST.translate ast.[0] []
     let r = 

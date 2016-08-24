@@ -6,7 +6,7 @@ open Yard.Generators.RNGLR
 open Yard.Generators.Common.AST
 
 
-let parse str =
+let parse str : List<GS.ICA.AST.ast> =
     let lb = Microsoft.FSharp.Text.Lexing.LexBuffer<_>.FromString str
     let tokens = seq { while not lb.IsPastEndOfStream do yield GS.ICA.Lexer.token lb}
     let ast = GS.ICA.Parser.buildAst tokens

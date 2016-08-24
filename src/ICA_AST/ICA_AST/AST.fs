@@ -93,7 +93,11 @@ let rec translate ast context =
                     printfn "S2=%A" !store
                     let s = !store
                     T (mkTransducer (fun () -> s)))     
-        translate e ((s,v)::context)    
+        translate e ((s,v)::context)
+    | Seq (e1, e2) ->
+        let t1 = translate e1 context
+        let t2 = translate e2 context
+        T (mkTransducer (fun () -> match t1 with T t -> t.PostAndReply(fun rc -> Q rc); match t2 with T t -> t.PostAndReply(fun rc -> Q rc); ))    
         
 (*        new_var (\x.M)
         ((var->N)->N)

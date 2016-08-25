@@ -84,13 +84,13 @@ let rec translate ast context =
         let v =             
                 let store = ref 0
                 P(T(mkTransducer (fun () ->
-                                        printfn "deref V = %A" !store 
+                                        //printfn "deref V = %A" !store 
                                         !store)), 
                   fun t ->
                     let f () = 
-                        printfn "S1=%A" !store
+                        //printfn "S1=%A" !store
                         store := eval t
-                        printfn "S2=%A" !store
+                        //printfn "S2=%A" !store
                         !store
                     T (mkTransducer (f)))     
         translate e ((s,v)::context)

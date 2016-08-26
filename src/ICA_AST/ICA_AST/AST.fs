@@ -1,4 +1,7 @@
 ﻿module GS.ICA.AST
+open Microsoft.FSharp.Quotations
+open Microsoft.FSharp.Quotations.Patterns
+
 
 type ast = 
  | True
@@ -20,14 +23,9 @@ type ast =
  | Release of ast
  | Fix of ast
 
-type termType =
-    | Tuple of termType*termType
-    | Fun of termType*termType
-    | N
-
 type Q<'retVal> = Q of AsyncReplyChannel<'retVal>
 
-let mkTransducer retVal =
+let mkTransducer name retVal =
     let inbox = MailboxProcessor.Start(
         fun inbox ->
             let rec loop i =
@@ -35,14 +33,12 @@ let mkTransducer retVal =
                     let! msg = inbox.Receive()
                     match msg with
                     | Q rc ->
+                        printfn "tr name = %A" name
                         rc.Reply (retVal())
                         return! loop i            
                 }
             loop 0)
     inbox
-
-//let rec typeAst ast =
-//    match 
 
 type tRes<'t> =
     | L of (tRes<'t> -> tRes<'t>)
@@ -54,13 +50,20 @@ let eval t =
     | T (t:MailboxProcessor<_>) -> t.PostAndReply(fun rc -> Q rc)
     | _ -> failwith "incorrect"
 
+
+let c = ref 0
+let getName s =
+    let r = s + "_" + (string !c) 
+    incr c
+    r
+
 let rec translate ast context =
     match ast with 
-    | Num n -> T(mkTransducer (fun () -> n))
+    | Num n -> T(mkTransducer (getName ("num_" + string n)) (fun () -> n))
     | Expr(l, r, op) ->
         let l' =  translate l context
         let r' = translate r context 
-        T(mkTransducer (fun () -> eval l' + eval r'))
+        T(mkTransducer (getName "expr") (fun () -> eval l' + eval r'))
     | Lambda ((Var s), ast) ->
         L(fun s' -> translate ast ((s,s')::context))
     | Var s -> 
@@ -81,49 +84,99 @@ let rec translate ast context =
         match v' with
         | P (get, set) -> set (translate e context)    
     | New ((Var s), e) -> 
-        let v =             
+        let v =
                 let store = ref 0
-                P(T(mkTransducer (fun () ->
-                                        //printfn "deref V = %A" !store 
-                                        !store)), 
+                P(T(mkTransducer (getName ("get_" + s)) (fun () -> !store)), 
                   fun t ->
-                    let f () = 
-                        //printfn "S1=%A" !store
+                    let f () =
                         store := eval t
-                        //printfn "S2=%A" !store
                         !store
-                    T (mkTransducer (f)))     
+                    T (mkTransducer (getName ("set_" + s)) f))
         translate e ((s,v)::context)
     | Seq (e1, e2) ->
         let t1 = translate e1 context
         let t2 = translate e2 context
-        T (mkTransducer (fun () -> eval t1
+        T (mkTransducer (getName "seq") 
+                        (fun () -> eval t1
                                    eval t2))
     | If (c,t,e) ->
         let c' = translate c context
         let t' = translate t context
         let e' = translate e context
-        T (mkTransducer (fun () ->
+        T (mkTransducer
+                        (getName "if")
+                        (fun () ->
                             let c = eval c'
                             if c = 0
                             then eval t'
                             else eval e'
                          ))
-        
-(*        new_var (\x.M)
-        ((var->N)->N)
-        (((N*(N->N))->N)->N) ((N*(N->N))->N)
 
-        *)
-        
-//let genConst v = fst<_,_> q -> v
+//let next =
+//        let counter = ref 0
+//        fun () ->
+//            incr counter
+//            !counter    
 //
-//let binOp l r op = 
-//    fst<_,_> q -> (l q) op (r q)
+//let mkTransducerQ retVal =    
+//    let getId = next
+//    let newName = Microsoft.FSharp.Quotations.Var ("f" + string (getId()))
+//    fun b -> Microsoft.FSharp.Quotations.Expr.l (newName, %retVal, b)    
 //
-//let genLambda v b = 
-//    fun x -> 
 //
-//let genAppl a b = 
-//    inject a (gen b) : fst<_,_>  
-    
+//let evalQ t =
+//    match t with 
+//    | T (t:MailboxProcessor<_>) -> t.PostAndReply(fun rc -> Q rc)
+//    | _ -> failwith "incorrect"
+//
+//let rec translateQ ast context =
+//    match ast with 
+//    | Num n -> T(mkTransducerQ <@n@>)
+//    | Expr(l, r, op) ->
+//        let l' =  translate l context
+//        let r' = translate r context 
+//        T(mkTransducer (fun () -> eval l' + eval r'))
+//    | Lambda ((Var s), ast) ->
+//        L(fun s' -> translate ast ((s,s')::context))
+//    | Var s -> 
+//        let fst = context |> List.tryFind (fun (name,t) -> name = s)
+//        match fst with 
+//        | Some (s,t) -> t
+//        | _ -> failwithf "var %A not binded" s
+//    | App (a,b)  ->
+//        let at = translate a context
+//        match at with
+//        | L f -> f (translate b context)
+//    | Deref e ->
+//        let v = translate e context
+//        match v with
+//        | P (get, set) -> get
+//    | Assg (v, e) ->
+//        let v' = translate v context
+//        match v' with
+//        | P (get, set) -> set (translate e context)    
+//    | New ((Var s), e) -> 
+//        let v =
+//                let store = ref 0
+//                P(T(mkTransducer (fun () -> !store)), 
+//                  fun t ->
+//                    let f () =
+//                        store := eval t
+//                        !store
+//                    T (mkTransducer f))     
+//        translate e ((s,v)::context)
+//    | Seq (e1, e2) ->
+//        let t1 = translate e1 context
+//        let t2 = translate e2 context
+//        T (mkTransducer (fun () -> eval t1
+//                                   eval t2))
+//    | If (c,t,e) ->
+//        let c' = translate c context
+//        let t' = translate t context
+//        let e' = translate e context
+//        T (mkTransducer (fun () ->
+//                            let c = eval c'
+//                            if c = 0
+//                            then eval t'
+//                            else eval e'
+//                         ))

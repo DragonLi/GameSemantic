@@ -3,8 +3,7 @@
 open GS.ICA.AST
 
 [<EntryPoint>]
-let main argv = 
-    let ast = GS.ICA.Pars.Main.parse "new x in new y in ((x := 2); (y := (!x + 3)); if !x then x := (!x + 1) else x := (!y + !x + 3))"
+let main argv =     
     let ast = GS.ICA.Pars.Main.parse 
                "new x in 
                 new y in (

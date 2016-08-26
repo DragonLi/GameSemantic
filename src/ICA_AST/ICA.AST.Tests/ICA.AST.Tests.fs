@@ -16,6 +16,11 @@ let astTest (ast:List<_>) expectRes =
 [<TestFixture>]
 type ``ICA Tests`` () =            
     [<Test>]
+    member this.``Test 1.0`` () = 
+        let ast = GS.ICA.Pars.Main.parse "(\ f . new x in new y in ((x := 2); (y := (f(!x) + 3)); if !x then x := (f(!x) + 1) else x := (f(!y) + !x + 3)))(\ x . x + 1)"
+        astTest ast 12
+
+    [<Test>]
     member this.``Test 1.`` () = 
         let ast = GS.ICA.Pars.Main.parse "new x in new y in ((x := 2); (y := (!x + 3)); if !x then x := (!x + 1) else x := (!y + !x + 3))"
         astTest ast 10
@@ -44,6 +49,12 @@ type ``ICA Tests`` () =
     member this.``Test 6.`` () = 
         let ast = GS.ICA.Pars.Main.parse "(\ f . new x in (f(x) + (f(x))))(\ x . !x + 1)"
         astTest ast 2
+
+
+    [<Test>]
+    member this.``Test 6.1.`` () = 
+        let ast = GS.ICA.Pars.Main.parse "(\ f . new x in new y in (y := 2 ; (f(x) + (f(y)))))(\ x . !x + 1)"
+        astTest ast 4
 
     [<Test>]
     member this.``Test 7.`` () = 
